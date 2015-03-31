@@ -1,8 +1,7 @@
 __author__ = 'Lukas und Max K.'
-from sets import Set
 
 class TagSearcher:
-	tagConfigSet = Set()
+	tagConfigSet = set()
 	def __init__(self, tagConfigList):
 		for configTag in tagConfigList:
 			self.tagConfigSet.add(configTag)
