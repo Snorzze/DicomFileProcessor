@@ -1,6 +1,6 @@
 import unittest
 
-from ConfigFileReader import ConfigFileReader
+import ConfigFileReader
 
 path = "ConfigSamples/configSample1.txt"
 
