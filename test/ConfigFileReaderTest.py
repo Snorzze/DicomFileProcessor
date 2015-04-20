@@ -1,6 +1,6 @@
 import unittest
 
-from test import ConfigFileReader
+from ConfigFileReader import ConfigFileReader
 
 path = "ConfigSamples/configSample1.txt"
 
@@ -9,7 +9,7 @@ class TestConfigFileReader(unittest.TestCase):
         self.configFileReader = ConfigFileReader()
 
     def test_readConfig(self):
-        result = self.readConfig(path)
+        result = self.configFileReader.readConfig(path)
         validResult = ['18005011', '18005111', '18005211']
         self.assertEquals(result, validResult)
 
