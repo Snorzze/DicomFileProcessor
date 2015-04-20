@@ -1,3 +1,5 @@
+__author__ = 'Thomas and Kemal and Lukas'
+
 class ConfigFileReader:
     def readConfig(self, path):
         text_file = open(path, "r")
