@@ -4,7 +4,7 @@ class ConfigFileReader:
 
     def readConfig(self, path):
         self.content = self.readConfigCorrectOrder(path)
-        return list(map(self.turn, content))
+        return list(map(self.turn, self.content))
 
     def turn(self, tag):
         groupId = self.swap(tag[:-4])
