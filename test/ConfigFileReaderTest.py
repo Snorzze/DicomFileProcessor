@@ -13,5 +13,10 @@ class TestConfigFileReader(unittest.TestCase):
         validResult = ['18005011', '18005111', '18005211']
         self.assertEquals(result, validResult)
 
+    def test_readConfigCorrectOrder(self):
+        result = self.configFileReader.readConfigCorrectOrder()
+        validResult = ['00181150', '00181151', '00181152']
+        self.assertEquals(result, validResult)
+
 if __name__ == "__main__":
     unittest.main()
