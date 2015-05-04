@@ -31,7 +31,7 @@ class Parser:
                     break
                 if tagsearcher.containsDicomTagInConfig(tag):
                     export_map[tag] = self.get_actual_tag_value()
-                    print(export_map[tag])
+                    print(tag + ": " + export_map[tag])
                 else:
                     self.skip_actual_tag()
 
@@ -43,7 +43,7 @@ class Parser:
 
     def get_actual_tag_value(self):
         self.shift_byte_sequence(4)
-        vr = self.convert_hex_to_ascii(self.v1) + self.convert_hex_to_ascii(self.v2)
+        vr = self.convert_hex_to_ascii(self.v1) + self.convert_hex_to_ascii(self.v2) #TODO @Maja Excpetion handling wenn Impliziter Typ(wenn excp fliegt dann den tteil ausm else block ausführen)
         if Parser.is_valid_vr(vr):
             # Going for explicite Value --> little endian
             lenght = struct.unpack("<H", (self.v3 + self.v4))[0]
@@ -57,7 +57,7 @@ class Parser:
     def skip_actual_tag(self):
         temp = self.generate_actual_byte_sequence_as_string()
         self.shift_byte_sequence(4)
-        vr = self.convert_hex_to_ascii(self.v1) + self.convert_hex_to_ascii(self.v2)
+        vr = self.convert_hex_to_ascii(self.v1) + self.convert_hex_to_ascii(self.v2) #TODO @Maja Excpetion handling wenn Impliziter Typ(wenn excp fliegt dann den tteil ausm else block ausführen)
         if Parser.is_valid_vr(vr):
             # Going for explicite Value --> little endian
             lenght_to_skip = struct.unpack("<H", (self.v3 + self.v4))[0]
