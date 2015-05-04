@@ -13,7 +13,6 @@ class TestStringMethods(unittest.TestCase):
         self.assertIsInstance(self.tagSearcher, TagSearcher)
 
     def test_contains_tag(self):
-
         self.assertTrue(self.tagSearcher.containsDicomTagInConfig(configTagList[0]))
         self.assertTrue(self.tagSearcher.containsDicomTagInConfig(configTagList[1]))
         self.assertTrue(self.tagSearcher.containsDicomTagInConfig(configTagList[2]))
