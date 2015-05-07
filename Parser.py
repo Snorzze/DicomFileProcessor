@@ -1,7 +1,9 @@
 __author__ = 'Max W. und Maja'
 
-import sys, struct
+import sys
+import struct
 
+import ImplicitValueError
 from TagSearcher import TagSearcher
 
 
@@ -17,7 +19,7 @@ class Parser:
     v4 = None
     file = None
 
-# NUR BIS PIXEL DATA SUCHEN ( 7FE0,0010 )
+    # NUR BIS PIXEL DATA SUCHEN ( 7FE0,0010 )
 
     def parse_dicom_file(self, tagsearcher, pathtodicomfile):
         self.file = open(pathtodicomfile, "rb")
@@ -43,30 +45,34 @@ class Parser:
 
     def get_actual_tag_value(self):
         self.shift_byte_sequence(4)
-        vr = self.convert_hex_to_ascii(self.v1) + self.convert_hex_to_ascii(self.v2) #TODO @Maja Excpetion handling wenn Impliziter Typ(wenn excp fliegt dann den tteil ausm else block ausführen)
-        if Parser.is_valid_vr(vr):
-            # Going for explicite Value --> little endian
-            lenght = struct.unpack("<H", (self.v3 + self.v4))[0]
-            return self.get_byte_sequence(lenght)
-        else:
+        vr = self.convert_hex_to_ascii(self.v1) + self.convert_hex_to_ascii(
+            self.v2)  # TODO Excpetion
+        try:
+            if Parser.is_valid_vr(vr):
+                # Going for explicite Value --> little endian
+                lenght = struct.unpack("<H", (self.v3 + self.v4))[0]
+                return self.get_byte_sequence(lenght)
+        except ImplicitValueError:
             print("IMPLIZIT!!! NICHT FUNKTIONSFÄHIG")
-            # Going for implicite Value --> big endian
+            # Going for implicit Value --> big endian
             lenght = struct.unpack(">H", (self.v1 + self.v2 + self.v3 + self.v4))[0]
             return self.get_byte_sequence(lenght)
 
     def skip_actual_tag(self):
         temp = self.generate_actual_byte_sequence_as_string()
         self.shift_byte_sequence(4)
-        vr = self.convert_hex_to_ascii(self.v1) + self.convert_hex_to_ascii(self.v2) #TODO @Maja Excpetion handling wenn Impliziter Typ(wenn excp fliegt dann den tteil ausm else block ausführen)
-        if Parser.is_valid_vr(vr):
-            # Going for explicite Value --> little endian
-            lenght_to_skip = struct.unpack("<H", (self.v3 + self.v4))[0]
-            self.shift_byte_sequence(lenght_to_skip)
+        vr = self.convert_hex_to_ascii(self.v1) + self.convert_hex_to_ascii(
+            self.v2)  # TODO Excpetion
+        try:
+            if Parser.is_valid_vr(vr):
+                # Going for explicit Value --> little endian
+                lenght_to_skip = struct.unpack("<H", (self.v3 + self.v4))[0]
+                self.shift_byte_sequence(lenght_to_skip)
             if temp == "02000100":
                 print("ACHTUNG: Temporärer tag wird übersprungen! Nicht in Produktionsphase benutzen!")
                 self.shift_byte_sequence(6)
-        else:
-            # Going for implicite Value --> big endian
+        except ImplicitValueError:
+            # Going for implicit Value --> big endian
             lenght_to_skip = struct.unpack(">H", (self.v1 + self.v2 + self.v3 + self.v4))[0]
             print(lenght_to_skip)
             self.shift_byte_sequence(lenght_to_skip)
@@ -131,7 +137,11 @@ class Parser:
         validVRs = set(
             ["AE", "AS", "AT", "CS", "DA", "DS", "DT", "FL", "FD", "IS", "LO", "LT", "OB", "OF", "OW", "PN", "SH", "SL",
              "SQ", "SS", "ST", "TM", "UI", "UL", "UN", "US", "UT"])
-        return vrtotry in validVRs
+        if vrtotry in validVRs:
+            return True
+        else:
+            raise ImplicitValueError
+            return False
 
 
 if __name__ == "__main__":
