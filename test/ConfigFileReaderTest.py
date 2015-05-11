@@ -1,8 +1,12 @@
 import unittest
+import os
 
 from ConfigFileReader import ConfigFileReader
 
-path = "/ConfigSamples/configSample1.txt"
+path = "./ConfigSamples/configSample1.txt"
+
+dir = os.path.dirname(__file__)
+path = os.path.join(dir, path)
 
 fileOrderTags = ['18005011', '18005111', '18005211']
 correctOrder = ['00181150', '00181151', '00181152']
@@ -10,7 +14,6 @@ correctOrder = ['00181150', '00181151', '00181152']
 class TestConfigFileReader(unittest.TestCase):
     def setUp(self):
         self.configFileReader = ConfigFileReader()
-
     def test_readConfig(self):
         result = self.configFileReader.readConfig(path)
         self.assertEquals(result, fileOrderTags)
