@@ -7,7 +7,7 @@ from TagSearcher import TagSearcher
 
 filepath = "../ExampleFiles/brain_001.dcm"
 
-resultdata = {"08007000": "GE Medical Systems"}
+resultdata = {"08007000": "GE Medical Systems", "08003300": "143006", "08001010": "MRS1"}
 
 
 def get_tags():
