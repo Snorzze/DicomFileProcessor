@@ -5,6 +5,7 @@ from TagSearcher import TagSearcher
 
 configTagList = ["98675412", "89A042B1", "11457863"]
 
+
 class TestStringMethods(unittest.TestCase):
     def setUp(self):
         self.tagSearcher = TagSearcher(configTagList)
@@ -19,6 +20,7 @@ class TestStringMethods(unittest.TestCase):
 
     def test_should_not_contain_tag(self):
         self.assertFalse(self.tagSearcher.containsDicomTagInConfig("0123"))
+
 
 if __name__ == '__main__':
     unittest.main()
