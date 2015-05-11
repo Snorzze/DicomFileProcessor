@@ -1,11 +1,15 @@
 __author__ = 'Kurscheidt & Schmidt'
 
 import unittest
+import os
 
 from Parser import Parser
 from TagSearcher import TagSearcher
 
 filepath = "../ExampleFiles/brain_001.dcm"
+
+dir = os.path.dirname(__file__)
+filepath = os.path.join(dir, filepath)
 
 resultdata = {"08007000": "GE Medical Systems", "08003300": "143006", "08001010": "MRS1"}
 
