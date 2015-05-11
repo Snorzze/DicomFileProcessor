@@ -49,11 +49,11 @@ class Parser:
         if self.is_valid_vr():
             # Going for explicite Value --> little endian
             lenght = struct.unpack("<H", (self.v3 + self.v4))[0]
-            return self.get_byte_sequence(lenght)
+            return self.get_byte_sequence_as_ascii(lenght)
         else:
             # Going for implicit Value --> big endian
             lenght = struct.unpack(">I", (self.v1 + self.v2 + self.v3 + self.v4))[0]
-            return self.get_byte_sequence(lenght)
+            return self.get_byte_sequence_as_ascii(lenght)
 
     def skip_actual_tag(self):
         temp = self.generate_actual_byte_sequence_as_string()
@@ -91,7 +91,7 @@ class Parser:
         else:
             return None
 
-    def get_byte_sequence(self, length):
+    def get_byte_sequence_as_ascii(self, length):
         """
         Reads the length of bytes and returns the ascii converted string
 
@@ -102,7 +102,7 @@ class Parser:
         string = ""
         while length > 0:
             self.shift_byte_sequence(1)
-            string += self.convert_hex_to_string(self.v4)
+            string += self.convert_hex_to_ascii(self.v4)
             length -= 1
         return string
 
