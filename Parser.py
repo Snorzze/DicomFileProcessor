@@ -45,29 +45,52 @@ class Parser:
             return {}
 
     def get_actual_tag_value(self):
+        """
+        Reads automaticaly the value of the current loaded tag
+        :return: the value as string
+        """
+
         self.shift_byte_sequence(4)
         if self.is_valid_vr():
             # Going for explicite Value --> little endian
-            lenght = struct.unpack("<H", (self.v3 + self.v4))[0]
-            return self.get_byte_sequence_as_ascii(lenght)
+            if not self.is_special_vr():
+                # Normal vr --> normal process
+                lenght = struct.unpack("<H", (self.v3 + self.v4))[0]
+                return self.get_byte_sequence_as_ascii(lenght)
+            else:
+                # Specail vr --> special process
+                # skip reservated 2 bytes
+                self.shift_byte_sequence(4)
+                # read special lenght to read
+                lenght = struct.unpack("<I", (self.v1 + self.v2 + self.v3 + self.v4))[0]
+                return self.get_byte_sequence_as_ascii(lenght)
         else:
             # Going for implicit Value --> big endian
             lenght = struct.unpack(">I", (self.v1 + self.v2 + self.v3 + self.v4))[0]
             return self.get_byte_sequence_as_ascii(lenght)
 
     def skip_actual_tag(self):
-        temp = self.generate_actual_byte_sequence_as_string()
+        """
+        Skips actual loaded tag automaticly. Reads length and loads new bytes to the end of the value.
+        After execution of this method, the last four bytes from the tagvalue are loaded in the variables.
+        """
+
         self.shift_byte_sequence(4)
         if self.is_valid_vr():
             # Going for explicit Value --> little endian
-            lenght_to_skip = struct.unpack("<H", (self.v3 + self.v4))[0]
-            self.shift_byte_sequence(lenght_to_skip)
-            if temp == "02000100":
-                print("ACHTUNG: Temporärer tag wird übersprungen! Nicht in Produktionsphase benutzen!")
-                self.shift_byte_sequence(6)
+            if not self.is_special_vr():
+                # Normal vr --> normal process
+                lenght_to_skip = struct.unpack("<H", (self.v3 + self.v4))[0]
+                self.shift_byte_sequence(lenght_to_skip)
+            else:
+                # Specail vr --> special process
+                # skip reservated 2 bytes and go to new length size
+                self.shift_byte_sequence(4)
+                # read special lenght to skip
+                lenght_to_skip = struct.unpack("<I", (self.v1 + self.v2 + self.v3 + self.v4))[0]
+                self.shift_byte_sequence(lenght_to_skip)
         else:
             # Going for implicit Value --> big endian
-            print("IMPLIZIT!!! NICHT FUNKTIONSFÄHIG")
             lenght_to_skip = struct.unpack(">I", (self.v1 + self.v2 + self.v3 + self.v4))[0]
             self.shift_byte_sequence(lenght_to_skip)
 
@@ -128,6 +151,11 @@ class Parser:
         return str(str1) + str(str2) + str(str3) + str(str4)
 
     def find_dicom_start(self):
+        """
+        Reads the data till the dicomstarttag is found!
+        :return: If the tag was found
+        """
+
         bytesequence = self.shift_byte_sequence(4)
         while bytesequence is not None:
             if bytesequence == self.dicomStartBytePath:
@@ -137,22 +165,51 @@ class Parser:
         return False
 
     def is_valid_vr(self):
-        try:
-            vr = self.convert_hex_to_ascii(self.v1) + self.convert_hex_to_ascii(
-                self.v2)
-            validVRs = set(
-                ["AE", "AS", "AT", "CS", "DA", "DS", "DT", "FL", "FD", "IS", "LO", "LT", "OB", "OF", "OW", "PN", "SH",
-                 "SL",
-                 "SQ", "SS", "ST", "TM", "UI", "UL", "UN", "US", "UT"])
-            return vr in validVRs
-        except Exception:
-            return False
+        """
+        Checks if the vr is a valid vr
+        :return: if vr is valid
+        """
+
+        vr = self.convert_hex_to_ascii(self.v1) + self.convert_hex_to_ascii(
+            self.v2)
+        validvrs = set(
+            ["AE", "AS", "AT", "CS", "DA", "DS", "DT", "FL", "FD", "IS", "LO", "LT", "OB", "OF", "OW", "PN", "SH",
+             "SL",
+             "SQ", "SS", "ST", "TM", "UI", "UL", "UN", "US", "UT"])
+        return vr in validvrs
+
+    def is_special_vr(self):
+        """
+        Checks if vr is special vr, which has to read on a special way:
+            - Skipping 2 bytes which are reserved for further dicom standards
+            - Reading 4 unsigned littlen endian Integers
+        :return: if vr is a special vr
+        """
+
+        vr = self.convert_hex_to_ascii(self.v1) + self.convert_hex_to_ascii(
+            self.v2)
+        specialvrs = set(["OB", "OW", "SQ", "UN"])
+        return vr in specialvrs
 
     @staticmethod
     def convert_hex_to_string(hex_value):
+        """
+        :param hex_value: the byte to convert
+        :return: the bytes as string withoud 0x
+        """
+
         return hex(ord(hex_value)).replace("0x", "")
 
     @staticmethod
     def convert_hex_to_ascii(hex_value):
-        return bytes.fromhex(Parser.convert_hex_to_string(hex_value)).decode('utf-8')
+        """
+        Converts a hex value to a ascii encoded string
+        :param hex_value: the value to encode
+        :return: the encode value or, if it wasn't a convertable hexbyte the byte as string
+        """
+
+        try:
+            return bytes.fromhex(Parser.convert_hex_to_string(hex_value)).decode('utf-8')
+        except ValueError:
+            return Parser.convert_hex_to_string(hex_value)
 
