@@ -3,3 +3,5 @@ IntelliJ Files
 *.iml
 
 *.pyc
+
+DicomFileProcessor/.idea/*
