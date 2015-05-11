@@ -5,6 +5,8 @@ import struct
 
 import ImplicitValueError
 from TagSearcher import TagSearcher
+from ConfigFileReader import ConfigFileReader
+from TagExporter import TagExporter
 
 
 class Parser:
@@ -18,6 +20,7 @@ class Parser:
     v3 = None
     v4 = None
     file = None
+    exporter = TagExporter();
 
     # NUR BIS PIXEL DATA SUCHEN ( 7FE0,0010 )
 
@@ -25,23 +28,21 @@ class Parser:
         self.file = open(pathtodicomfile, "rb")
         if self.find_dicom_start():
             export_map = {}
-            print("Dicom Starttag von Datei gefunden. Beginne parsen...")
             tag = self.shift_byte_sequence(4)
             while tag is not None:
                 if tag == self.dicomImageStartTag:
-                    print("Datei erfolgreich beendet!")
-                    break
+                    return export_map
                 if tagsearcher.containsDicomTagInConfig(tag):
                     export_map[tag] = self.get_actual_tag_value()
-                    print(tag + ": " + export_map[tag])
                 else:
                     self.skip_actual_tag()
 
                 tag = self.shift_byte_sequence(4)
 
-            print("[DONE]")
+            return export_map
         else:
             print("Konnte Starttag von Datei nicht finde. Datei ist fehlerhaft!")
+            return {}
 
     def get_actual_tag_value(self):
         self.shift_byte_sequence(4)
@@ -142,7 +143,3 @@ class Parser:
         else:
             raise ImplicitValueError
             return False
-
-
-if __name__ == "__main__":
-    Parser().parse_dicom_file(TagSearcher(["08002200"]), sys.argv[1])

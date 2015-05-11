@@ -28,10 +28,3 @@ class TagExporter:
             row[tag] = value
 
         return row
-
-
-
-exporter = TagExporter()
-exporter.saveTag("HalloTag", "Value1", "File00")
-exporter.saveTag("TschüssTag", "Value2", "File00")
-exporter.writeToFile("", ["HalloTag", "TschüssTag", "TestTag"])
