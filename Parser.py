@@ -45,6 +45,11 @@ class Parser:
             return {}
 
     def get_actual_tag_value(self):
+        """
+        Reads automaticaly the value of the current loaded tag
+        :return: the value as string
+        """
+
         self.shift_byte_sequence(4)
         if self.is_valid_vr():
             # Going for explicite Value --> little endian
@@ -65,6 +70,11 @@ class Parser:
             return self.get_byte_sequence_as_ascii(lenght)
 
     def skip_actual_tag(self):
+        """
+        Skips actual loaded tag automaticly. Reads length and loads new bytes to the end of the value.
+        After execution of this method, the last four bytes from the tagvalue are loaded in the variables.
+        """
+
         self.shift_byte_sequence(4)
         if self.is_valid_vr():
             # Going for explicit Value --> little endian
@@ -141,6 +151,11 @@ class Parser:
         return str(str1) + str(str2) + str(str3) + str(str4)
 
     def find_dicom_start(self):
+        """
+        Reads the data till the dicomstarttag is found!
+        :return: If the tag was found
+        """
+
         bytesequence = self.shift_byte_sequence(4)
         while bytesequence is not None:
             if bytesequence == self.dicomStartBytePath:
@@ -150,6 +165,11 @@ class Parser:
         return False
 
     def is_valid_vr(self):
+        """
+        Checks if the vr is a valid vr
+        :return: if vr is valid
+        """
+
         vr = self.convert_hex_to_ascii(self.v1) + self.convert_hex_to_ascii(
             self.v2)
         validvrs = set(
@@ -159,6 +179,13 @@ class Parser:
         return vr in validvrs
 
     def is_special_vr(self):
+        """
+        Checks if vr is special vr, which has to read on a special way:
+            - Skipping 2 bytes which are reserved for further dicom standards
+            - Reading 4 unsigned littlen endian Integers
+        :return: if vr is a special vr
+        """
+
         vr = self.convert_hex_to_ascii(self.v1) + self.convert_hex_to_ascii(
             self.v2)
         specialvrs = set(["OB", "OW", "SQ", "UN"])
@@ -166,10 +193,21 @@ class Parser:
 
     @staticmethod
     def convert_hex_to_string(hex_value):
+        """
+        :param hex_value: the byte to convert
+        :return: the bytes as string withoud 0x
+        """
+
         return hex(ord(hex_value)).replace("0x", "")
 
     @staticmethod
     def convert_hex_to_ascii(hex_value):
+        """
+        Converts a hex value to a ascii encoded string
+        :param hex_value: the value to encode
+        :return: the encode value or, if it wasn't a convertable hexbyte the byte as string
+        """
+
         try:
             return bytes.fromhex(Parser.convert_hex_to_string(hex_value)).decode('utf-8')
         except ValueError:
