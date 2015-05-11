@@ -1,12 +1,6 @@
 __author__ = 'Max W. und Maja'
 
-import sys
 import struct
-
-import ImplicitValueError
-from TagSearcher import TagSearcher
-from ConfigFileReader import ConfigFileReader
-from TagExporter import TagExporter
 
 
 class Parser:
@@ -20,11 +14,17 @@ class Parser:
     v3 = None
     v4 = None
     file = None
-    exporter = TagExporter();
 
     # NUR BIS PIXEL DATA SUCHEN ( 7FE0,0010 )
 
     def parse_dicom_file(self, tagsearcher, pathtodicomfile):
+        """
+        Parses the given dicom file for the tags, the tagsearcher includes
+        :param tagsearcher: includes the searched tags
+        :param pathtodicomfile: the path to the dicomdata
+        :return: a hasmap with all found tags as key and values
+        """
+        
         self.file = open(pathtodicomfile, "rb")
         if self.find_dicom_start():
             export_map = {}
@@ -47,13 +47,12 @@ class Parser:
     def get_actual_tag_value(self):
         self.shift_byte_sequence(4)
         vr = self.convert_hex_to_ascii(self.v1) + self.convert_hex_to_ascii(
-            self.v2)  # TODO Excpetion
-        try:
-            if Parser.is_valid_vr(vr):
-                # Going for explicite Value --> little endian
-                lenght = struct.unpack("<H", (self.v3 + self.v4))[0]
-                return self.get_byte_sequence(lenght)
-        except ImplicitValueError:
+            self.v2)
+        if Parser.is_valid_vr(vr):
+            # Going for explicite Value --> little endian
+            lenght = struct.unpack("<H", (self.v3 + self.v4))[0]
+            return self.get_byte_sequence(lenght)
+        else:
             print("IMPLIZIT!!! NICHT FUNKTIONSFÄHIG")
             # Going for implicit Value --> big endian
             lenght = struct.unpack(">H", (self.v1 + self.v2 + self.v3 + self.v4))[0]
@@ -63,22 +62,28 @@ class Parser:
         temp = self.generate_actual_byte_sequence_as_string()
         self.shift_byte_sequence(4)
         vr = self.convert_hex_to_ascii(self.v1) + self.convert_hex_to_ascii(
-            self.v2)  # TODO Excpetion
-        try:
-            if Parser.is_valid_vr(vr):
-                # Going for explicit Value --> little endian
-                lenght_to_skip = struct.unpack("<H", (self.v3 + self.v4))[0]
-                self.shift_byte_sequence(lenght_to_skip)
+            self.v2)
+        if Parser.is_valid_vr(vr):
+            # Going for explicit Value --> little endian
+            lenght_to_skip = struct.unpack("<H", (self.v3 + self.v4))[0]
+            self.shift_byte_sequence(lenght_to_skip)
             if temp == "02000100":
                 print("ACHTUNG: Temporärer tag wird übersprungen! Nicht in Produktionsphase benutzen!")
                 self.shift_byte_sequence(6)
-        except ImplicitValueError:
+        else:
             # Going for implicit Value --> big endian
+            print("IMPLIZIT!!! NICHT FUNKTIONSFÄHIG")
             lenght_to_skip = struct.unpack(">H", (self.v1 + self.v2 + self.v3 + self.v4))[0]
-            print(lenght_to_skip)
             self.shift_byte_sequence(lenght_to_skip)
 
     def shift_byte_sequence(self, lengthofnewbytes):
+        """
+        Shifts the filereader for the given length.
+
+        :param lengthofnewbytes: the length to shift
+        :return: the last four bytes as string
+        """
+
         while lengthofnewbytes > 0:
             self.v1 = self.v2
             self.v2 = self.v3
@@ -92,6 +97,13 @@ class Parser:
             return None
 
     def get_byte_sequence(self, length):
+        """
+        Reads the length of bytes and returns the ascii converted string
+
+        :param length: the lenght of the value to read
+        :return: the converted string
+        """
+
         string = ""
         while length > 0:
             self.shift_byte_sequence(1)
@@ -100,6 +112,12 @@ class Parser:
         return string
 
     def generate_actual_byte_sequence_as_string(self):
+        """
+        Generates string from actual Hex-Bytes
+
+        :return: generated string
+        """
+
         str1 = hex(ord(self.v1)).replace("0x", "")
         str2 = hex(ord(self.v2)).replace("0x", "")
         str3 = hex(ord(self.v3)).replace("0x", "")
@@ -138,8 +156,8 @@ class Parser:
         validVRs = set(
             ["AE", "AS", "AT", "CS", "DA", "DS", "DT", "FL", "FD", "IS", "LO", "LT", "OB", "OF", "OW", "PN", "SH", "SL",
              "SQ", "SS", "ST", "TM", "UI", "UL", "UN", "US", "UT"])
-        if vrtotry in validVRs:
-            return True
-        else:
-            raise ImplicitValueError
+        try:
+            return vrtotry in validVRs
+        except Exception:
             return False
+
