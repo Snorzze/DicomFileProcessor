@@ -140,11 +140,20 @@ class Parser:
         try:
             vr = self.convert_hex_to_ascii(self.v1) + self.convert_hex_to_ascii(
                 self.v2)
-            validVRs = set(
+            validvrs = set(
                 ["AE", "AS", "AT", "CS", "DA", "DS", "DT", "FL", "FD", "IS", "LO", "LT", "OB", "OF", "OW", "PN", "SH",
                  "SL",
                  "SQ", "SS", "ST", "TM", "UI", "UL", "UN", "US", "UT"])
-            return vr in validVRs
+            return vr in validvrs
+        except Exception:
+            return False
+
+    def is_special_vr(self):
+        try:
+            vr = self.convert_hex_to_ascii(self.v1) + self.convert_hex_to_ascii(
+                self.v2)
+            specialvrs = set(["OB", "OW", "SQ", "UN"])
+            return vr in specialvrs
         except Exception:
             return False
 

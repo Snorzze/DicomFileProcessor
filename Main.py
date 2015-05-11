@@ -13,7 +13,7 @@ from ConfigFileReader import ConfigFileReader
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:
-        print("Usage: python3 main <Attributefile> <Directory of dicom files> <Outputfile>")
+        print("Usage: python3 Main.py <Attributefile> <Directory of dicom files> <Outputfile>")
         exit()
 
     attributefile = sys.argv[1]
