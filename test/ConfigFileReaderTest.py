@@ -18,12 +18,12 @@ class TestConfigFileReader(unittest.TestCase):
         self.configFileReader = ConfigFileReader()
 
     def test_read_config(self):
-        result = self.configFileReader.readConfig(path)
+        result = self.configFileReader.read_config(path)
         self.assertEquals(result, fileOrderTags)
         self.assertEquals(self.configFileReader.content, correctOrder)
 
     def test_read_config_correct_order(self):
-        result = self.configFileReader.readConfigCorrectOrder(path)
+        result = self.configFileReader.read_config_correct_order(path)
         self.assertEquals(result, correctOrder)
 
 

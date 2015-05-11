@@ -8,6 +8,7 @@ from TagSearcher import TagSearcher
 from ConfigFileReader import ConfigFileReader
 from TagExporter import TagExporter
 
+
 # Wird als Programmeinstiegspunkt genutzt. Liest Verzeizeichispfad von Dicomdateien  ein, der mitgegeben wurde.
 # Optional kann auch der Pfad zur Configdatei eingelesen werden.
 
@@ -22,7 +23,7 @@ if __name__ == "__main__":
     datas = []
     exporter = TagExporter()
     configFileReader = ConfigFileReader()
-    tagSearcher = TagSearcher(configFileReader.readConfig(sys.argv[1]))
+    tagSearcher = TagSearcher(configFileReader.read_config(sys.argv[1]))
 
     for x in os.listdir(dicomDirectory):
         if os.path.isfile(dicomDirectory + x):
@@ -37,6 +38,6 @@ if __name__ == "__main__":
             print(key + ": " + parsed[key])
         print("\n\n")
 
-    exporter.writeToFile(outputfile, configFileReader.readConfig(attributefile))
+    exporter.writeToFile(outputfile, configFileReader.read_config(attributefile))
 
 
