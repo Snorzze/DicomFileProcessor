@@ -6,17 +6,18 @@ import os
 from Parser import Parser
 from TagSearcher import TagSearcher
 
-filepath = "../ExampleFiles/brain_001.dcm"
 
-dir = os.path.dirname(__file__)
-filepath = os.path.join(dir, filepath)
+file_path = "../ExampleFiles/brain_001.dcm"
 
-resultdata = {"08007000": "GE Medical Systems", "08003300": "143006", "08001010": "MRS1"}
+directory = os.path.dirname(__file__)
+file_path = os.path.join(directory, file_path)
+
+result_data = {"08007000": "GE Medical Systems", "08003300": "143006", "08001010": "MRS1"}
 
 
 def get_tags():
     result = []
-    for tag in resultdata.items():
+    for tag in result_data.items():
         result.append(tag[0])
     return result
 
@@ -26,13 +27,13 @@ class MyTestCase(unittest.TestCase):
         self.parser = Parser()
 
     def test_parse(self):
-        parsed_result = self.parser.parse_dicom_file(TagSearcher(get_tags()), filepath)
+        parsed_result = self.parser.parse_dicom_file(TagSearcher(get_tags()), file_path)
         for tag in get_tags():
-            self.assertEqual(resultdata[tag], parsed_result[tag])
+            self.assertEqual(result_data[tag], parsed_result[tag])
 
     def test_should_not_find_tag(self):
         tag = "00889777"
-        parsed_result = self.parser.parse_dicom_file(TagSearcher([tag]), filepath)
+        parsed_result = self.parser.parse_dicom_file(TagSearcher([tag]), file_path)
         self.assertFalse(tag in parsed_result)
 
 
