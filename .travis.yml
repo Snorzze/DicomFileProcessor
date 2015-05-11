@@ -3,4 +3,4 @@ python:
 - "3.3"
 - "3.4"
 # command to run tests
-script: nosetests
+script: python3 -m unittest discover --pattern=*Test.py ./test

@@ -2,7 +2,7 @@ import unittest
 
 from ConfigFileReader import ConfigFileReader
 
-path = "ConfigSamples/configSample1.txt"
+path = "/ConfigSamples/configSample1.txt"
 
 fileOrderTags = ['18005011', '18005111', '18005211']
 correctOrder = ['00181150', '00181151', '00181152']
