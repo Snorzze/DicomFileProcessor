@@ -10,7 +10,7 @@ class TagExporter:
         self.exportData[file][tag] = data
 
     def writeToFile(self, f, tags):
-        with open('names.csv', 'w') as csvfile:
+        with open(f, 'w') as csvfile:
             fieldnames = ['file'] + tags
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames, delimiter=';')
             writer.writeheader()
