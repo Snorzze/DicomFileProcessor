@@ -10,6 +10,7 @@ from TagExporter import TagExporter
 
 
 
+
 # Wird als Programmeinstiegspunkt genutzt. Liest Verzeizeichispfad von Dicomdateien  ein, der mitgegeben wurde.
 # Optional kann auch der Pfad zur Configdatei eingelesen werden.
 
@@ -35,8 +36,8 @@ if __name__ == "__main__":
         parsed = {}
         parsed = Parser().parse_dicom_file(tagSearcher, x)
         for key in parsed:
-            exporter.saveTag(key, parsed[key], str(x).split("/")[-1])
+            exporter.save_tag(key, parsed[key], str(x).split("/")[-1])
             print(key + ": " + parsed[key])
         print("\n\n")
 
-    exporter.writeToFile(output_file, configFileReader.read_config(attribute_file))
+    exporter.write_to_file(output_file, configFileReader.read_config(attribute_file))

@@ -33,7 +33,7 @@ class Parser:
             while tag is not None:
                 if tag == self.dicomImageStartTag:
                     return export_map
-                if tag_searcher.containsDicomTagInConfig(tag):
+                if tag_searcher.contains_dicom_tag_in_config(tag):
                     export_map[tag] = self.get_actual_tag_value()
                 else:
                     self.skip_actual_tag()
