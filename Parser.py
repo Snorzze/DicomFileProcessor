@@ -24,7 +24,7 @@ class Parser:
         :param pathtodicomfile: the path to the dicomdata
         :return: a hasmap with all found tags as key and values
         """
-        
+
         self.file = open(pathtodicomfile, "rb")
         if self.find_dicom_start():
             export_map = {}
@@ -46,24 +46,19 @@ class Parser:
 
     def get_actual_tag_value(self):
         self.shift_byte_sequence(4)
-        vr = self.convert_hex_to_ascii(self.v1) + self.convert_hex_to_ascii(
-            self.v2)
-        if Parser.is_valid_vr(vr):
+        if self.is_valid_vr():
             # Going for explicite Value --> little endian
             lenght = struct.unpack("<H", (self.v3 + self.v4))[0]
-            return self.get_byte_sequence(lenght)
+            return self.get_byte_sequence_as_ascii(lenght)
         else:
-            print("IMPLIZIT!!! NICHT FUNKTIONSFÄHIG")
             # Going for implicit Value --> big endian
-            lenght = struct.unpack(">H", (self.v1 + self.v2 + self.v3 + self.v4))[0]
-            return self.get_byte_sequence(lenght)
+            lenght = struct.unpack(">I", (self.v1 + self.v2 + self.v3 + self.v4))[0]
+            return self.get_byte_sequence_as_ascii(lenght)
 
     def skip_actual_tag(self):
         temp = self.generate_actual_byte_sequence_as_string()
         self.shift_byte_sequence(4)
-        vr = self.convert_hex_to_ascii(self.v1) + self.convert_hex_to_ascii(
-            self.v2)
-        if Parser.is_valid_vr(vr):
+        if self.is_valid_vr():
             # Going for explicit Value --> little endian
             lenght_to_skip = struct.unpack("<H", (self.v3 + self.v4))[0]
             self.shift_byte_sequence(lenght_to_skip)
@@ -73,7 +68,7 @@ class Parser:
         else:
             # Going for implicit Value --> big endian
             print("IMPLIZIT!!! NICHT FUNKTIONSFÄHIG")
-            lenght_to_skip = struct.unpack(">H", (self.v1 + self.v2 + self.v3 + self.v4))[0]
+            lenght_to_skip = struct.unpack(">I", (self.v1 + self.v2 + self.v3 + self.v4))[0]
             self.shift_byte_sequence(lenght_to_skip)
 
     def shift_byte_sequence(self, lengthofnewbytes):
@@ -96,7 +91,7 @@ class Parser:
         else:
             return None
 
-    def get_byte_sequence(self, length):
+    def get_byte_sequence_as_ascii(self, length):
         """
         Reads the length of bytes and returns the ascii converted string
 
@@ -107,7 +102,7 @@ class Parser:
         string = ""
         while length > 0:
             self.shift_byte_sequence(1)
-            string += self.convert_hex_to_string(self.v4)
+            string += self.convert_hex_to_ascii(self.v4)
             length -= 1
         return string
 
@@ -141,6 +136,17 @@ class Parser:
                 bytesequence = self.shift_byte_sequence(1)
         return False
 
+    def is_valid_vr(self):
+        try:
+            vr = self.convert_hex_to_ascii(self.v1) + self.convert_hex_to_ascii(
+                self.v2)
+            validVRs = set(
+                ["AE", "AS", "AT", "CS", "DA", "DS", "DT", "FL", "FD", "IS", "LO", "LT", "OB", "OF", "OW", "PN", "SH",
+                 "SL",
+                 "SQ", "SS", "ST", "TM", "UI", "UL", "UN", "US", "UT"])
+            return vr in validVRs
+        except Exception:
+            return False
 
     @staticmethod
     def convert_hex_to_string(hex_value):
@@ -149,15 +155,4 @@ class Parser:
     @staticmethod
     def convert_hex_to_ascii(hex_value):
         return bytes.fromhex(Parser.convert_hex_to_string(hex_value)).decode('utf-8')
-
-
-    @staticmethod
-    def is_valid_vr(vrtotry):
-        validVRs = set(
-            ["AE", "AS", "AT", "CS", "DA", "DS", "DT", "FL", "FD", "IS", "LO", "LT", "OB", "OF", "OW", "PN", "SH", "SL",
-             "SQ", "SS", "ST", "TM", "UI", "UL", "UN", "US", "UT"])
-        try:
-            return vrtotry in validVRs
-        except Exception:
-            return False
 
