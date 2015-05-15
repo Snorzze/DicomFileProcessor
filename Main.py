@@ -38,17 +38,17 @@ if __name__ == "__main__":
         print_documentation()
         exit()
 
-    dicomDirectory = sys.argv[1]
-    outputfile = sys.argv[2] if len(sys.argv) > 2 and sys.argv[2] != '-' else dicomDirectory + "output.csv"
-    attributefile = sys.argv[3] if len(sys.argv) > 3 and sys.argv[3] != '-' else "./attributes.txt"
-    datas = []
+    dicom_directory = sys.argv[1]
+    output_file = sys.argv[2] if len(sys.argv) > 2 and sys.argv[2] != '-' else dicomDirectory + "output.csv"
+    attribute_file = sys.argv[3] if len(sys.argv) > 3 and sys.argv[3] != '-' else "./attributes.txt"
+    data = []
     exporter = TagExporter()
     configFileReader = ConfigFileReader()
     tagSearcher = TagSearcher(configFileReader.readConfig(attributefile))
 
-    for x in os.listdir(dicomDirectory):
-        if os.path.isfile(dicomDirectory + x):
-            datas.append(dicomDirectory + x)
+    for x in os.listdir(dicom_directory):
+        if os.path.isfile(dicom_directory + x):
+            data.append(dicom_directory + x)
 
     for x in datas:
         print("Lese " + str(x).split("/")[-1])
