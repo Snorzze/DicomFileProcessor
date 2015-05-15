@@ -7,6 +7,7 @@ from Parser import Parser
 from TagSearcher import TagSearcher
 from ConfigFileReader import ConfigFileReader
 from TagExporter import TagExporter
+from ShiftError import ShiftError
 
 
 # Wird als Programmeinstiegspunkt genutzt. Liest Verzeizeichispfad von Dicomdateien  ein, der mitgegeben wurde.
@@ -37,8 +38,6 @@ if __name__ == "__main__":
         print_documentation()
         exit()
 
-    if len(sys.argv) > 2 and sys.argv[2] != '*':
-        print(sys.argv[2])
     dicomDirectory = sys.argv[1]
     outputfile = sys.argv[2] if len(sys.argv) > 2 and sys.argv[2] != '-' else dicomDirectory + "output.csv"
     attributefile = sys.argv[3] if len(sys.argv) > 3 and sys.argv[3] != '-' else "./attributes.txt"
@@ -54,7 +53,12 @@ if __name__ == "__main__":
     for x in datas:
         print("Lese " + str(x).split("/")[-1])
         parsed = {}
-        parsed = Parser().parse_dicom_file(tagSearcher, x)
+        try:
+            parsed = Parser().parse_dicom_file(tagSearcher, x)
+        except ShiftError as e:
+            print("Konnte Tag nicht parsen, da die angegebene"
+                  " Länge (" + str(e.msg) + ") des Wertes die gesamte Dateigröße überschreitet!"
+                  " Datei ist Fehlerhaft.")
         for key in parsed:
             exporter.saveTag(key, parsed[key], str(x).split("/")[-1])
 

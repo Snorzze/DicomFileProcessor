@@ -1,7 +1,9 @@
 __author__ = 'Max W. und Maja'
 
 import struct
+import os
 
+from ShiftError import ShiftError
 
 class Parser:
     def __init__(self):
@@ -14,6 +16,7 @@ class Parser:
     v3 = None
     v4 = None
     file = None
+    filesize = None
 
     # NUR BIS PIXEL DATA SUCHEN ( 7FE0,0010 )
 
@@ -26,6 +29,7 @@ class Parser:
         """
 
         self.file = open(pathtodicomfile, "rb")
+        self.filesize = os.path.getsize(pathtodicomfile)
         if self.find_dicom_start():
             export_map = {}
             tag = self.shift_byte_sequence(4)
@@ -102,6 +106,8 @@ class Parser:
         :return: the last four bytes as string
         """
 
+        if lengthofnewbytes > self.filesize:
+            raise ShiftError(lengthofnewbytes)
         while lengthofnewbytes > 0:
             self.v1 = self.v2
             self.v2 = self.v3
