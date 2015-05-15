@@ -39,29 +39,29 @@ if __name__ == "__main__":
         exit()
 
     dicom_directory = sys.argv[1]
-    output_file = sys.argv[2] if len(sys.argv) > 2 and sys.argv[2] != '-' else dicomDirectory + "output.csv"
+    output_file = sys.argv[2] if len(sys.argv) > 2 and sys.argv[2] != '-' else dicom_directory + "output.csv"
     attribute_file = sys.argv[3] if len(sys.argv) > 3 and sys.argv[3] != '-' else "./attributes.txt"
     data = []
     exporter = TagExporter()
-    configFileReader = ConfigFileReader()
-    tagSearcher = TagSearcher(configFileReader.readConfig(attributefile))
+    config_file_reader = ConfigFileReader()
+    tag_searcher = TagSearcher(config_file_reader.read_config(attribute_file))
 
     for x in os.listdir(dicom_directory):
         if os.path.isfile(dicom_directory + x):
             data.append(dicom_directory + x)
 
-    for x in datas:
+    for x in data:
         print("Lese " + str(x).split("/")[-1])
         parsed = {}
         try:
-            parsed = Parser().parse_dicom_file(tagSearcher, x)
+            parsed = Parser().parse_dicom_file(tag_searcher, x)
         except ShiftError as e:
             print("Konnte Tag nicht parsen, da die angegebene"
                   " Länge (" + str(e.msg) + ") des Wertes die gesamte Dateigröße überschreitet!"
                   " Datei ist Fehlerhaft.")
         for key in parsed:
-            exporter.saveTag(key, parsed[key], str(x).split("/")[-1])
+            exporter.save_tag(key, parsed[key], str(x).split("/")[-1])
 
-    exporter.writeToFile(outputfile, configFileReader.readConfig(attributefile))
-    print("\nWrote file to " + outputfile)
+    exporter.write_to_file(output_file, config_file_reader.read_config(attribute_file))
+    print("\nWrote file to " + output_file)
     print("\nFINISHED!")
