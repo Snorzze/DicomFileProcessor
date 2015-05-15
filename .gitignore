@@ -5,3 +5,5 @@ IntelliJ Files
 *.pyc
 
 DicomFileProcessor/.idea/*
+
+ExampleFiles/output.csv

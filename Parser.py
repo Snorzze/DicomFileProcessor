@@ -1,6 +1,9 @@
 __author__ = 'Max W. und Maja'
 
 import struct
+import os
+
+from ShiftError import ShiftError
 
 
 class Parser:
@@ -14,6 +17,7 @@ class Parser:
     v3 = None
     v4 = None
     file = None
+    file_size = None
 
     # NUR BIS PIXEL DATA SUCHEN ( 7FE0,0010 )
 
@@ -27,6 +31,7 @@ class Parser:
         """
 
         self.file = open(path_to_dicom_file, "rb")
+        self.file_size = os.path.getsize(path_to_dicom_file)
         if self.find_dicom_start():
             export_map = {}
             tag = self.shift_byte_sequence(4)
@@ -104,6 +109,8 @@ class Parser:
         :return: the last four bytes as string
         """
 
+        if length_of_new_bytes > self.file_size:
+            raise ShiftError(length_of_new_bytes)
         while length_of_new_bytes > 0:
             self.v1 = self.v2
             self.v2 = self.v3
@@ -155,6 +162,7 @@ class Parser:
     def find_dicom_start(self):
         """
         Reads the data till the dicom starttag is found!
+        
         :return: If the tag was found
         """
 
@@ -174,9 +182,8 @@ class Parser:
 
         vr = self.convert_hex_to_ascii(self.v1) + self.convert_hex_to_ascii(
             self.v2)
-        valid_vrs = set(
-            ["AE", "AS", "AT", "CS", "DA", "DS", "DT", "FL", "FD", "IS", "LO", "LT", "OB", "OF", "OW", "PN", "SH",
-             "SL", "SQ", "SS", "ST", "TM", "UI", "UL", "UN", "US", "UT"])
+        valid_vrs = {"AE", "AS", "AT", "CS", "DA", "DS", "DT", "FL", "FD", "IS", "LO", "LT", "OB", "OF", "OW", "PN",
+                     "SH", "SL", "SQ", "SS", "ST", "TM", "UI", "UL", "UN", "US", "UT"}
         return vr in valid_vrs
 
     def is_special_vr(self):
@@ -190,7 +197,7 @@ class Parser:
 
         vr = self.convert_hex_to_ascii(self.v1) + self.convert_hex_to_ascii(
             self.v2)
-        special_vrs = set(["OB", "OW", "SQ", "UN"])
+        special_vrs = {"OB", "OW", "SQ", "UN"}
         return vr in special_vrs
 
     @staticmethod
