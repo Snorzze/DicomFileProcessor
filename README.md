@@ -1,6 +1,11 @@
 # DicomFileProcessor
 Read abitrary DICOM tags from a large set of files and export them into a csv file.
 
+####Use
+```$ python3 main.py```
+
+Follow the instructions.
+
 #### MIT License
 Copyright (c) 2015 Maximilian Kurscheidt, Kemal Yildirim, Thomas Hagel, Maria Paulina Dubinska, Maximilian Westers, Lukas Schmidt
 
