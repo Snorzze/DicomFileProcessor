@@ -4,7 +4,7 @@ Read abitrary DICOM tags from a large set of files and export them into a csv fi
 ####Use
 ```$ python3 main.py```
 
-Follow the instructions.
+Follow the instructions which will help you to start the process. 
 
 #### MIT License
 Copyright (c) 2015 Maximilian Kurscheidt, Kemal Yildirim, Thomas Hagel, Maria Paulina Dubinska, Maximilian Westers, Lukas Schmidt
